@@ -1,5 +1,5 @@
 const Connection = require('./Connection');
-const config = require('./rsrc.js');
+const config = require('./config.js');
 
 async function start() {
     conn = new Connection();
