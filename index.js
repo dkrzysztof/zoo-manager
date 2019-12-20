@@ -1,10 +1,9 @@
-const Connection = require('./Connection');
+const Server = require('./server');
 const config = require('./config.js');
 
 async function start() {
-    conn = new Connection();
-    await conn.init(config);
-    conn.setup();
+    server = new Server();
+    await server.start(3000, config);
 }
 
 start();
