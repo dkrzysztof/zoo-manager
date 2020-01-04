@@ -4,70 +4,91 @@ const expressSession = require('express-session');
 const routes = require('./routes');
 const Sequelize = require('sequelize');
 const loadModels = require('../models');
+const logger = require('./rsrc/logger');
 
 class Server {
     constructor() {
         this.expressApp = require('express')();
     }
 
-    async fetchQueryResultWithError(query) {
-        return new Promise((resolve, reject) => {
-            if (typeof query === 'string') {
-                return this.client.query(query, (err, res) => {
-                    if (res) {
-                        resolve(res);
-                    }
-                    if (err) {
-                        console.log('ERROR', err.message);
-                    }
-                });
-            } else {
-                throw TypeError('query paramether should be a string!');
-            }
-        });
+    async _setupSequelizers(config) {
+        // initiating empty sequlizers holder
+        this.sequelizers = {};
+
+        await this._setupSequelize(
+            this.sequelizers,
+            'admins',
+            config,
+            config.admins.user,
+            config.admins.password
+        );
+        await this._setupSequelize(
+            this.sequelizers,
+            'caretakers',
+            config,
+            config.caretakers.user,
+            config.caretakers.password
+        );
+        await this._setupSequelize(
+            this.sequelizers,
+            'vets',
+            config,
+            config.vets.user,
+            config.vets.password
+        );
+        await this._setupSequelize(
+            this.sequelizers,
+            'guests',
+            config,
+            config.guests.user,
+            config.guests.password
+        );
+    }
+
+    async _setupSequelize(holder, sequlizeName, config, user, password) {
+        // create new database connection object
+        let sequelize = new Sequelize(
+            config.database,
+            user,
+            password,
+            config.options
+        );
+
+        // append name of the sequelizer
+        sequelize.name = sequlizeName;
+
+        //autheticate credentials and connect
+        try {
+            await sequelize.authenticate();
+            console.log('[SEQUELIZE]: Connected!');
+
+            // load models made from sequelize-auto
+            await loadModels(sequelize, sequlizeName);
+            console.log(
+                '[SEQUELIZE]: Successfuly loaded models for ' +
+                    sequlizeName.toUpperCase()
+            );
+        } catch (error) {
+            console.error('[SEQUELIZE]: ERROR', error.message);
+        }
+
+        // link sequelize to this context
+        holder[sequlizeName] = sequelize;
     }
 
     async start(port, config) {
-        // create new database connection object
-        this.sequelize = new Sequelize(
-            config.database,
-            config.user,
-            config.password,
-            {
-                host: config.host,
-                dialect: 'postgres',
-                port: config.port,
-                define: {
-                    timestamps: false
-                },
-                logging: false
-            }
-        );
-
-        //autheticate credentials and connect
-        await this.sequelize
-            .authenticate()
-            .then(() => {
-                console.log('[SEQUELIZE]: Connected!');
-                return true;
-            })
-            .catch((err) => {
-                console.error('[SEQUELIZE]: ERROR', err.message);
-                return false;
-            });
-
-        // load models made from sequelize-auto
-        await loadModels(this.sequelize);
-
+        await this._setupSequelizers(config);
         this._setupMiddlewares();
         this._setupRoutes();
-        await this.expressApp.listen(port, () => {
+        this.expressApp.listen(port, () => {
             console.log(`Listening on port ${port}...`);
         });
     }
 
     _setupRoutes() {
+        this.expressApp.get('/', routes.hello);
         this.expressApp.post('/login', routes.logIn);
+        this.expressApp.post('/users/', routes.createUser);
     }
 
     _setupMiddlewares() {
@@ -76,7 +97,12 @@ class Server {
         this.expressApp.use(bodyParser.urlencoded({ extended: true }));
         // this.expressApp.use(cookieParser());
         this.expressApp.use((req, res, next) => {
-            req.server = { sequelize: this.sequelize };
+            req.sequelizers = {
+                admins: this.sequelizers.admins,
+                caretakers: this.sequelizers.caretakers,
+                vets: this.sequelizers.vets,
+                guest: this.sequelizers.guest
+            };
             next();
         });
         this.expressApp.use(
@@ -91,6 +117,7 @@ class Server {
                 secret: 'topsecret'
             })
         );
+        this.expressApp.use(logger);
     }
 }
 

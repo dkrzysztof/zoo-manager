@@ -1,36 +1,56 @@
-async function loadModels(sequelize) {
-    const Addresses = sequelize.import(__dirname + '\\addresses');
-    const Administrators = sequelize.import(__dirname + '\\administrators');
-    const AnimalPlaces = sequelize.import(__dirname + '\\animal_places');
-    const Animals = sequelize.import(__dirname + '\\animals');
-    const Caretakers = sequelize.import(__dirname + '\\caretakers');
-    const vetVisits = sequelize.import(__dirname + '\\vet_visits');
-    const Vets = sequelize.import(__dirname + '\\vets');
-    const Workers = sequelize.import(__dirname + '\\workers');
-
-    try {
-        Addresses.sync();
-        Administrators.sync();
-        AnimalPlaces.sync();
-        Animals.sync();
-        Caretakers.sync();
-        vetVisits.sync();
-        Vets.sync();
-        Workers.sync();
-    } catch (error) {
-        console.log('ERROR', error.message);
+async function loadModels(sequelize, sequelizeName) {
+    let MODEL_LIST;
+    switch (sequelizeName) {
+        case 'admins':
+            MODEL_LIST = [
+                'addresses',
+                'administrators',
+                'animal_places',
+                'animals',
+                'caretakers',
+                'vet_visits',
+                'vets',
+                'workers'
+            ];
+            break;
+        case 'caretakers':
+            MODEL_LIST = [
+                'addresses',
+                'animal_places',
+                'animals',
+                'caretakers',
+                'workers'
+            ];
+            break;
+        case 'vets':
+            MODEL_LIST = ['addresses', 'vet_visits', 'vets', 'workers'];
+            break;
+        case 'guests':
+            MODEL_LIST = ['animal_places', 'animals'];
+            break;
+        default:
+            MODEL_LIST = [];
+            break;
     }
 
-    sequelize.models = {
-        Addresses,
-        Administrators,
-        AnimalPlaces,
-        Animals,
-        Caretakers,
-        vetVisits,
-        Vets,
-        Workers
-    };
+    MODEL_LIST.map((x) => {
+        let modelX = sequelize.import(__dirname + '\\' + x);
+        sequelize.models ? null : (sequelize.models = {});
+
+        sequelize.models[x] = modelX;
+    });
+
+    for (let obj in sequelize.models) {
+        sequelize.models[obj].associate(sequelize.models);
+    }
+
+    for (let obj in sequelize.models) {
+        try {
+            sequelize.models[obj].sync();
+        } catch (error) {
+            console.log("ERROR in 'loadModels : sync()' :", error.message);
+        }
+    }
 }
 
 module.exports = loadModels;

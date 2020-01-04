@@ -1,12 +1,13 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define(
+    let vets = sequelize.define(
         'vets',
         {
             vet_id: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
+                autoIncrement: true,
                 primaryKey: true
             },
             vet_specialty: {
@@ -33,4 +34,10 @@ module.exports = function(sequelize, DataTypes) {
             tableName: 'vets'
         }
     );
+    vets.associate = (models) => {
+        vets.belongsTo(models.workers, { foreignKey: 'worker_id' });
+        vets.hasMany(models.vet_visits, { foreignKey: 'vet_id' });
+    };
+
+    return vets;
 };

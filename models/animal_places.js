@@ -1,12 +1,13 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-    return sequelize.define(
+    let animalPlaces = sequelize.define(
         'animal_places',
         {
             place_id: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
+                autoIncrement: true,
                 primaryKey: true
             },
             animal_count: {
@@ -29,4 +30,12 @@ module.exports = function(sequelize, DataTypes) {
             tableName: 'animal_places'
         }
     );
+
+    animalPlaces.associate = (model) => {
+        model.animals
+            ? animalPlaces.hasMany(model.animals, { foreignKey: 'animal_id' })
+            : false;
+    };
+
+    return animalPlaces;
 };
