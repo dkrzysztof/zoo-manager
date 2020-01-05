@@ -22,27 +22,27 @@ class Server {
             config.admins.user,
             config.admins.password
         );
-        await this._setupSequelize(
-            this.sequelizers,
-            'caretakers',
-            config,
-            config.caretakers.user,
-            config.caretakers.password
-        );
-        await this._setupSequelize(
-            this.sequelizers,
-            'vets',
-            config,
-            config.vets.user,
-            config.vets.password
-        );
-        await this._setupSequelize(
-            this.sequelizers,
-            'guests',
-            config,
-            config.guests.user,
-            config.guests.password
-        );
+        // await this._setupSequelize(
+        //     this.sequelizers,
+        //     'caretakers',
+        //     config,
+        //     config.caretakers.user,
+        //     config.caretakers.password
+        // );
+        // await this._setupSequelize(
+        //     this.sequelizers,
+        //     'vets',
+        //     config,
+        //     config.vets.user,
+        //     config.vets.password
+        // );
+        // await this._setupSequelize(
+        //     this.sequelizers,
+        //     'guests',
+        //     config,
+        //     config.guests.user,
+        //     config.guests.password
+        // );
     }
 
     async _setupSequelize(holder, sequlizeName, config, user, password) {
@@ -89,6 +89,7 @@ class Server {
         this.expressApp.get('/', routes.hello);
         this.expressApp.post('/login', routes.logIn);
         this.expressApp.post('/users/', routes.createUser);
+        this._setupEnumGetters(this.expressApp);
     }
 
     _setupMiddlewares() {
@@ -118,6 +119,50 @@ class Server {
             })
         );
         this.expressApp.use(logger);
+    }
+
+    _setupEnumGetters(expressApp) {
+        const enums = [
+            {
+                // poprawic na ENG
+                url: '/administrators/positions',
+                enum: 'enum_administrators_position'
+            },
+            {
+                // poprawic na ENG
+                url: '/animals-places/conditions',
+                enum: 'enum_animal_places_condition'
+            },
+            {
+                // poprawic na 5 scale degree
+                url: '/animal/health-conditions',
+                enum: 'enum_animals_health'
+            },
+            {
+                url: '/caretakers/shifts',
+                enum: 'enum_caretakers_shift'
+            },
+            {
+                // poprawić na jednoczesciowe napisy
+                url: '/vet-visits/states',
+                enum: 'enum_vet_visits_visit_state'
+            },
+            {
+                // poprawic na ENG
+                url: '/vets/specialties',
+                enum: 'enum_vets_vet_specialty'
+            }
+        ];
+
+        for (let obj of enums) {
+            expressApp.get(obj.url, async function(req, res) {
+                const data = await routes.getEnumValues(
+                    req.sequelizers.admins,
+                    obj.enum
+                );
+                res.status(400).json(data);
+            });
+        }
     }
 }
 

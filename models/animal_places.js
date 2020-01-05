@@ -15,7 +15,7 @@ module.exports = function(sequelize, DataTypes) {
                 allowNull: true,
                 defaultValue: '0'
             },
-            place: {
+            place_condition: {
                 type: DataTypes.ENUM(
                     'bardzo slaby',
                     'slaby',

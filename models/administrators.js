@@ -10,7 +10,7 @@ module.exports = function(sequelize, DataTypes) {
                 autoIncrement: true,
                 primaryKey: true
             },
-            type: {
+            position: {
                 type: DataTypes.ENUM('dyrektor', 'pracownik', 'leader'),
                 allowNull: false
             },
