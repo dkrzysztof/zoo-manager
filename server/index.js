@@ -89,7 +89,7 @@ class Server {
         this.expressApp.get('/', routes.hello);
         this.expressApp.post('/login', routes.logIn);
         this.expressApp.get('/logout', routes.logOut);
-        this.expressApp.post('/users/', routes.createUser);
+        this.expressApp.post('/users', routes.createUser);
         this.expressApp.get('/home', routes.auth, routes.afterLogin);
         this._setupEnumGetters(this.expressApp);
     }
