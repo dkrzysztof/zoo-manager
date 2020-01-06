@@ -1,11 +1,11 @@
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
-const expressSession = require('express-session');
+const session = require('express-session');
 const routes = require('./routes');
 const Sequelize = require('sequelize');
 const loadModels = require('../models');
 const logger = require('./rsrc/logger');
-
+const SESS_NAME = '_id';
 class Server {
     constructor() {
         this.expressApp = require('express')();
@@ -88,7 +88,9 @@ class Server {
     _setupRoutes() {
         this.expressApp.get('/', routes.hello);
         this.expressApp.post('/login', routes.logIn);
+        this.expressApp.get('/logout', routes.logOut);
         this.expressApp.post('/users/', routes.createUser);
+        this.expressApp.get('/home', routes.auth, routes.afterLogin);
         this._setupEnumGetters(this.expressApp);
     }
 
@@ -107,14 +109,16 @@ class Server {
             next();
         });
         this.expressApp.use(
-            expressSession({
-                name: 'session.id',
-                // SECURE MUST TRUE IN PRODUCTION!!!
-                key: 'zoo.ssid',
-                secure: false,
-                saveUninitialized: false,
-                expires: new Date().setMinutes(new Date().setSeconds + 30),
+            session({
+                name: SESS_NAME,
                 resave: false,
+                cookie: {
+                    maxAge: 1000 * 60 * 60 * 2,
+                    sameSite: true,
+                    // SECURE MUST TRUE IN PRODUCTION!!!
+                    secure: false
+                },
+                saveUninitialized: false,
                 secret: 'topsecret'
             })
         );

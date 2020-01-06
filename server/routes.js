@@ -1,4 +1,5 @@
 const Seq = require('sequelize');
+const SESS_NAME = '_id';
 
 module.exports.hello = async function(req, res) {
     res.status(200).json({
@@ -8,38 +9,18 @@ module.exports.hello = async function(req, res) {
 };
 module.exports.logIn = async function(req, res) {
     let data;
+    const { username, password } = req.body;
 
-    if (req.body.username && req.body.password) {
-        data = await req.sequelizers.admins.models.workers
-            .findAll({
-                include: [
-                    {
-                        model: req.sequelizers.admins.models.administrators
-                    },
-                    {
-                        model: req.sequelizers.admins.models.vets
-                    },
-                    {
-                        model: req.sequelizers.admins.models.caretakers
-                    },
-                    {
-                        model: req.sequelizers.admins.models.addresses
-                    }
-                ],
-                where: {
-                    username: req.body.username,
-                    worker_password: req.body.password
-                },
-                limit: 1
-            })
-            .catch((err) => {
-                console.log(
-                    'ERROR :',
-                    'there was an error while retrieving logIn credentials\n',
-                    err.message
-                );
-            });
-
+    if (username && password) {
+        try {
+            data = await getUserInfo(
+                req.sequelizers.admins,
+                username,
+                password
+            );
+        } catch (error) {
+            console.log('[ERROR]:', error.message);
+        }
         if (data && data.length === 0) {
             data = {
                 statusCode: 404,
@@ -55,8 +36,44 @@ module.exports.logIn = async function(req, res) {
 
     if (data && data.length && data.length > 0) {
         data = data[0];
+        req.session._id = data.worker_id;
+        res.status(200).json(data);
+    } else {
+        res.status(500).send('Something went wrong...');
     }
-    res.status(400).json(data);
+};
+module.exports.afterLogin = function(req, res) {
+    console.log(res.locals.user);
+    res.status(200).send("It's ok!");
+};
+
+module.exports.auth = async function(req, res, next) {
+    if (!req.session._id) {
+        res.status(403).send('<h1>Forbidden</h1>');
+    } else {
+        try {
+            const RESPONSE = await getUserInfo(
+                req.sequelizers.admins,
+                req.session._id
+            );
+            res.locals.user = RESPONSE && RESPONSE.length && RESPONSE[0];
+        } catch (error) {
+            console.log('[ERROR]:', error.message);
+            res.status(505).send();
+        }
+        next();
+    }
+};
+
+module.exports.logOut = function(req, res) {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500);
+        }
+        res.clearCookie(SESS_NAME);
+        res.status(200);
+    });
+    res.send();
 };
 
 module.exports.createUser = async function(req, res) {
@@ -171,6 +188,51 @@ module.exports.createUser = async function(req, res) {
         });
 };
 
+module.exports.getEnumValues = async function getEnumValues(
+    sequelize,
+    enumName
+) {
+    const [queryResponseObject] = await sequelize.query(
+        `Select enum_range(NULL::${enumName});`,
+        {
+            type: sequelize.QueryTypes.SELECT
+        }
+    );
+
+    return queryResponseObject && queryResponseObject.enum_range;
+};
+
+async function getUserInfo(sequelize, usernameOrId, password) {
+    let whereParams = {};
+    password
+        ? (whereParams = {
+              username: usernameOrId,
+              worker_password: password
+          })
+        : (whereParams = {
+              worker_id: usernameOrId
+          });
+
+    return await sequelize.models.workers.findAll({
+        include: [
+            {
+                model: sequelize.models.administrators
+            },
+            {
+                model: sequelize.models.vets
+            },
+            {
+                model: sequelize.models.caretakers
+            },
+            {
+                model: sequelize.models.addresses
+            }
+        ],
+        where: whereParams,
+        limit: 1
+    });
+}
+
 async function createAccount(model, user, key, value, t) {
     const { dataValues: createdAccount } = await model
         .create(
@@ -261,17 +323,3 @@ async function populateAddress(sequelizer, addressInfo, t) {
     }
     return userAddress;
 }
-
-module.exports.getEnumValues = async function getEnumValues(
-    sequelize,
-    enumName
-) {
-    const [queryResponseObject] = await sequelize.query(
-        `Select enum_range(NULL::${enumName});`,
-        {
-            type: sequelize.QueryTypes.SELECT
-        }
-    );
-
-    return queryResponseObject && queryResponseObject.enum_range;
-};
