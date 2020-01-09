@@ -17,11 +17,11 @@ module.exports = function(sequelize, DataTypes) {
             },
             place_condition: {
                 type: DataTypes.ENUM(
-                    'bardzo slaby',
-                    'slaby',
-                    'przecietny',
-                    'dobry',
-                    'bardzo dobry'
+                    'very_poor',
+                    'poor',
+                    'fair',
+                    'good',
+                    'very_good'
                 ),
                 allowNull: false
             }

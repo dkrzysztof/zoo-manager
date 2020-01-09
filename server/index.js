@@ -29,13 +29,13 @@ class Server {
         //     config.caretakers.user,
         //     config.caretakers.password
         // );
-        // await this._setupSequelize(
-        //     this.sequelizers,
-        //     'vets',
-        //     config,
-        //     config.vets.user,
-        //     config.vets.password
-        // );
+        await this._setupSequelize(
+            this.sequelizers,
+            'vets',
+            config,
+            config.vets.user,
+            config.vets.password
+        );
         // await this._setupSequelize(
         //     this.sequelizers,
         //     'guests',
@@ -89,8 +89,9 @@ class Server {
         this.expressApp.get('/', routes.hello);
         this.expressApp.post('/login', routes.logIn);
         this.expressApp.get('/logout', routes.logOut);
-        this.expressApp.post('/users', routes.createUser);
         this.expressApp.get('/home', routes.auth, routes.afterLogin);
+        this.expressApp.get('/health/:id', routes.getAnimalHealth);
+        this.expressApp.post('/users', routes.authAdmin,routes.createUser);
         this._setupEnumGetters(this.expressApp);
     }
 

@@ -11,7 +11,7 @@ module.exports = function(sequelize, DataTypes) {
                 primaryKey: true
             },
             position: {
-                type: DataTypes.ENUM('dyrektor', 'pracownik', 'leader'),
+                type: DataTypes.ENUM('manager', 'worker', 'leader'),
                 allowNull: false
             },
             worker_id: {

@@ -19,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
                 allowNull: false
             },
             visit_state: {
-                type: DataTypes.ENUM('pending', 'in progress', 'finished'),
+                type: DataTypes.ENUM('pending', 'in_progress', 'finished'),
                 allowNull: false
             },
             visit_date: {

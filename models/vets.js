@@ -12,15 +12,17 @@ module.exports = function(sequelize, DataTypes) {
             },
             vet_specialty: {
                 type: DataTypes.ENUM(
-                    'Choroby koni',
-                    'Choroby psów i kotów',
-                    'Choroby drobiu oraz ptaków ozdobnych',
-                    'Choroby zwierząt futerkowych',
-                    'Choroby ryb',
-                    'Choroby owadów użytkowych',
-                    'Choroby zwierząt nieudomowionych',
-                    'Chirurgia weterynaryjna',
-                    'Weterynaryjna diagnostyka laboratoryjna'
+                    'Exotic_animal_veterinarian',
+                    'Equine_medicine',
+                    'Aquatic_medicine',
+                    'Conservation_medicine',
+                    'Birds_medicine',
+                    'Cardiology',
+                    'Nutrition',
+                    'Feline_medicine',
+                    'Canine_medicine',
+                    'Fish_medicine',
+                    'Reptile_and_amphibian_medicine'
                 ),
                 allowNull: false
             },

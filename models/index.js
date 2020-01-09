@@ -23,7 +23,7 @@ async function loadModels(sequelize, sequelizeName) {
             ];
             break;
         case 'vets':
-            MODEL_LIST = ['addresses', 'vet_visits', 'vets', 'workers'];
+            MODEL_LIST = ['addresses', 'vet_visits', 'vets', 'workers','health_view'];
             break;
         case 'guests':
             MODEL_LIST = ['animal_places', 'animals'];
@@ -35,8 +35,9 @@ async function loadModels(sequelize, sequelizeName) {
 
     MODEL_LIST.map((x) => {
         let modelX = sequelize.import(__dirname + '\\' + x);
+        // modelX.options.timestamps = false;
+        
         sequelize.models ? null : (sequelize.models = {});
-
         sequelize.models[x] = modelX;
     });
 

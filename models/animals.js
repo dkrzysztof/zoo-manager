@@ -24,11 +24,11 @@ module.exports = function(sequelize, DataTypes) {
             },
             health: {
                 type: DataTypes.ENUM(
-                    'worst',
-                    'bad',
-                    'unhealthy',
-                    'promising',
-                    'healthy'
+                    'very_poor',
+                    'poor',
+                    'fair',
+                    'good',
+                    'very_good'
                 ),
                 allowNull: false
             },
