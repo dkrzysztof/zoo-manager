@@ -1,3 +1,7 @@
+const admins_role = {user:"administrators" ,password:"role_admin"};
+const caretakers_role = {user:"caretakers" ,password:"role_caretakers"};
+const vets_role = {user:"vets" ,password:"role_vets"};
+const guests_role = {user:"guests" ,password:"role_guests"};
 
 module.exports = {
     database: "zoodatabase",

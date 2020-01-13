@@ -1,5 +1,13 @@
-const Sequelize = require('sequelize');
+const { addAddress: populateAddressToDatabase } = require("./routes/addAddress");
+
+const {getUserInfo, isPasswordStrongEnough, isUsernameValid, authAccountType} = require('./routes/authentication');
+
+const {createAccount, createAccountType} = require('./routes/createUser')
+
 const SESS_NAME = '_id';
+const WORKER_TABLE_CARETAKER_FIELD = 'caretaker';
+const WORKER_TABLE_ADMINISTRATOR_FIELD = 'administrator';
+const WORKER_TABLE_VET_FIELD = 'vet';
 
 module.exports.hello = async function(req, res) {
     res.status(200).json({
@@ -7,6 +15,7 @@ module.exports.hello = async function(req, res) {
         message: 'hello!'
     });
 };
+
 module.exports.logIn = async function(req, res) {
     let data;
     const { username, password } = req.body;
@@ -20,31 +29,18 @@ module.exports.logIn = async function(req, res) {
             );
         } catch (error) {
             console.log('[ERROR]:', error.message);
-        }
-        if (data && data.length === 0) {
-            data = {
-                statusCode: 404,
-                message: 'username or password was wrong'
-            };
+            return res.status(400).send(error.message);
         }
     } else {
-        data = {
-            statusCode: 400,
-            message: 'username or password was not defined'
-        };
+        return res.status(400).send('username or password was not defined');
     }
-
-    if (data && data.length && data.length > 0) {
-        data = data[0];
+    
+    if (data && data.dataValues) {
         req.session._id = data.worker_id;
-        res.status(200).json(data);
+        return res.status(200).json(data);
     } else {
-        res.status(500).send('Something went wrong...');
+        return res.status(400).send('username or password was wrong');
     }
-};
-module.exports.afterLogin = function(req, res) {
-    console.log(res.locals.user);
-    res.status(200).send("It's ok!");
 };
 
 module.exports.auth = async function(req, res, next) {
@@ -52,11 +48,10 @@ module.exports.auth = async function(req, res, next) {
         res.status(403).send('Forbidden');
     } else {
         try {
-            const RESPONSE = await getUserInfo(
+            res.locals.user = await getUserInfo(
                 req.sequelizers.admins,
                 req.session._id
             );
-            res.locals.user = RESPONSE && RESPONSE.length && RESPONSE[0];
         } catch (error) {
             console.log('[ERROR]:', error.message);
             res.status(505).send();
@@ -65,43 +60,17 @@ module.exports.auth = async function(req, res, next) {
     }
 };
 
-module.exports.authAdmin = async function(req, res, next) {
-    if (!req.session._id) {
-        res.status(403).send('Forbidden');
-    } else {
-        try {
-            const RESPONSE = await getUserInfo(
-                req.sequelizers.admins,
-                req.session._id
-            );
-
-            const data = RESPONSE && RESPONSE.length && RESPONSE[0];
-            const adminData = data.administrator && data.administrator.dataValues;
-            if(adminData && typeof adminData.admin_id ==="number" && adminData.admin_id > 0)
-            {
-                res.locals.admin = data.administrators;
-                res.locals.user = data;
-                next();
-            }else{
-                res.status(403).send('Forbidden');
-            }
-        } catch (error) {
-            console.log('[ERROR]:', error.message);
-            res.status(505).send();
-        }
-    }
+module.exports.authVet = async function(req, res, next) {
+    await authAccountType(req,res,next,WORKER_TABLE_VET_FIELD);
 };
 
+module.exports.authCaretaker = async function(req, res, next) {
+    await authAccountType(req,res,next,WORKER_TABLE_CARETAKER_FIELD);
+};
 
-module.exports.logOut = function(req, res) {
-    req.session.destroy((err) => {
-        if (err) {
-            return res.status(500);
-        }
-        res.clearCookie(SESS_NAME);
-        res.status(200);
-    });
-    res.send();
+module.exports.authAdmin = async function(req, res, next) {
+    await authAccountType(req,res,next,WORKER_TABLE_ADMINISTRATOR_FIELD);
+
 };
 
 module.exports.createUser = async function(req, res) {
@@ -186,7 +155,7 @@ module.exports.createUser = async function(req, res) {
             }
 
             // address population
-            const userAddress = await populateAddress(
+            const userAddress = await populateAddressToDatabase(
                 req.sequelizers.admins,
                 addressInfo,
                 t
@@ -236,6 +205,17 @@ module.exports.createUser = async function(req, res) {
         });
 };
 
+module.exports.logOut = function(req, res) {
+
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send('OK');
+        }
+        res.clearCookie(SESS_NAME);
+        return res.status(200).send('OK');
+    });
+};
+
 module.exports.getEnumValues = async function getEnumValues(
     sequelize,
     enumName
@@ -250,130 +230,88 @@ module.exports.getEnumValues = async function getEnumValues(
     return queryResponseObject && queryResponseObject.enum_range;
 };
 
-async function getUserInfo(sequelize, usernameOrId, password) {
-    let whereParams = {};
-    password
-        ? (whereParams = {
-              username: usernameOrId,
-              worker_password: password
-          })
-        : (whereParams = {
-              worker_id: usernameOrId
-          });
-
-    return await sequelize.models.workers.findAll({
-        include: [
-            {
-                model: sequelize.models.administrators
-            },
-            {
-                model: sequelize.models.vets
-            },
-            {
-                model: sequelize.models.caretakers
-            },
-            {
-                model: sequelize.models.addresses
-            }
-        ],
-        where: whereParams,
-        limit: 1
-    });
-}
-
-async function createAccount(model, user, key, value, t) {
-        const { dataValues: createdAccount } = await model
-        .create(
-            {
-                worker_id: user.worker_id,
-                [key]: value
-            },
-            { transaction: t }
-        )
-
-    let idKey = Object.keys(createdAccount).find((key) => /_id/);
-
-    return {
-        ...user,
-        [idKey]: createdAccount[idKey]
-    };
-}
-
-async function createAccountType(sequelizer, accountInfo, user, t) {
-    let key;
-    let modelName;
-    switch (accountInfo.type) {
-        case 'admins':
-        case 'administrators':
-        case 'administrator':
-        case 'admin':
-            key = 'position';
-            modelName = 'administrators';
-            break;
-
-        case 'caretaker':
-        case 'caretakers':
-            key = 'shift';
-            modelName = 'caretakers';
-            break;
-
-        case 'vets':
-        case 'vet':
-            key = 'vet_specialty';
-            modelName = 'vets';
-            break;
-    }
-    const value = accountInfo[key];
-    return (
-        modelName &&
-        key &&
-        value &&
-        (await createAccount(sequelizer.models[modelName], user, key, value, t))
-    );
-}
-function isPasswordStrongEnough(pwd) {
-    // at least one :
-    // lowercase letter,
-    // uppercase letter,
-    // digit,
-    // In length: 8
-    return (
-        pwd && pwd.match('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})') !== null
-    );
-}
-
-async function isUsernameValid(sequelize, username) {
-    username = username || '';
-    const foundSameUsername = await sequelize.models.workers.findOne({
-        where: { username }
-    });
-    if (foundSameUsername) {
-        return {
-            validationSuccess: false,
-            message: 'User with given username already exists'
-        };
-    }
-    return {
-        validationSuccess: username.match('(?=.{5,})') !== null,
-        message: 'Username is too short'
-    };
-}
-
-async function populateAddress(sequelizer, addressInfo, t) {
-    const userAddress = await sequelizer.models.addresses.findOne({
-        where: addressInfo
-    });
-
-    if (!userAddress) {
-        return await sequelizer.models.addresses.create(addressInfo, {
-            transaction: t
-        });
-    }
-    return userAddress;
-}
-
 module.exports.getAnimalHealth = async (req,res) => {
-    const response = await req.sequelizers.vets.models.animal_health.findAll();
+    const vet_id = res.locals.user
+    const response = await req.sequelizers.vets.models.animal_health.findAll({where: {vet_id}});
     const data = (response && response[0] && response[0].dataValues) || null;
     res.status(200).json(data);
+}
+
+module.exports.updateUserProfile = async (req,res) => {
+    const newProfileData = req.body;
+
+    const isPasswordStrong = await isPasswordStrongEnough(newProfileData.password);
+
+    if(!isPasswordStrongEnough && newProfileData.password){
+        return res.status(400).send("New password is not strong enough.");
+    }
+
+    const user = res.locals.user;
+
+    for(let key in user.dataValues){
+        switch (key) {
+            case "administrator":
+                for(let key in user.administrator.dataValues){
+                    if(!['worker_id','admin_id'].some(x=> x===key)){
+                        user.administrator[key] = newProfileData[key] || user.administrator.dataValues[key];
+                    }
+                }
+            break;
+            case "caretaker":
+                for(let key in user.caretaker.dataValues){
+                    if(!['worker_id','caretaker_id'].some(x=> x===key)){
+                        user.caretaker[key] = newProfileData[key] || user.caretaker.dataValues[key];
+                    }
+                }
+            break;
+            case "vet":
+                for(let key in user.vet.dataValues){
+                    if(!['worker_id','vet_id'].some(x=> x===key)){
+                        user.vet[key] = newProfileData[key] || user.vet.dataValues[key];
+                    }
+                }
+            break;
+            case "username":
+                break;
+            default:
+                user[key] = newProfileData[key] || user.dataValues[key];
+                break;
+        }
+    }
+
+    try {
+        user.vet && typeof user.vet.save === "function" ? await user.vet.save() : undefined;
+        user.caretaker && typeof user.caretaker.save === "function" ? await user.caretaker.save() : undefined;
+        user.administrator && typeof user.administrator.save === "function" ? await user.administrator.save() : undefined;
+        await user.save();
+
+    } catch (error) {
+        console.log("[ERROR]:",error.message);
+        return res.status(400).send(error.message);
+    }    
+
+    res.status(200).send("OK");
+}
+
+
+module.exports.createVisit = function(req,res){
+
+    const {
+        vet_id,animal_id,visit_date
+    } = req.body;
+    const newVisit = {
+        vet_id,animal_id,visit_date: new Date(visit_date)
+    }
+
+    try {
+        const RESPONSE = req.sequelizers.vets.models.vet_visits.create({
+            ...newVisit,
+            description:"",
+            visit_date: "pending"
+        });
+        res.status(200).json(RESPONSE);
+    } catch (error) {
+        console.log('[ERROR at createVisit]:',error.message);
+        res.status(500).send();
+    }
 }

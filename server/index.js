@@ -1,11 +1,14 @@
 const helmet = require('helmet');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const routes = require('./routes');
 const Sequelize = require('sequelize');
 const loadModels = require('../models');
 const logger = require('./rsrc/logger');
+
 const SESS_NAME = '_id';
+
 class Server {
     constructor() {
         this.expressApp = require('express')();
@@ -87,15 +90,22 @@ class Server {
 
     _setupRoutes() {
         this.expressApp.get('/', routes.hello);
+        
         this.expressApp.post('/login', routes.logIn);
         this.expressApp.get('/logout', routes.logOut);
-        this.expressApp.get('/home', routes.auth, routes.afterLogin);
+        
+        this.expressApp.get('/home', routes.auth, routes.hello);
         this.expressApp.get('/health/:id', routes.getAnimalHealth);
-        this.expressApp.post('/users', routes.authAdmin,routes.createUser);
+        this.expressApp.post('/users', routes.auth, routes.authAdmin, routes.createUser);
+        this.expressApp.put('/users', routes.auth, routes.updateUserProfile);
+
+        this.expressApp.post('/vet-visits', routes.auth, routes.authVet, routes.createVisit);
+
         this._setupEnumGetters(this.expressApp);
     }
 
     _setupMiddlewares() {
+        this.expressApp.use(cors());
         this.expressApp.use(helmet());
         this.expressApp.use(bodyParser.json());
         this.expressApp.use(bodyParser.urlencoded({ extended: true }));
