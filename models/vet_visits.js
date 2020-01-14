@@ -8,35 +8,35 @@ module.exports = function(sequelize, DataTypes) {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 autoIncrement: true,
-                primaryKey: true
+                primaryKey: true,
             },
             vet_id: {
                 type: DataTypes.INTEGER,
-                allowNull: false
+                allowNull: false,
             },
             description: {
                 type: DataTypes.STRING,
-                allowNull: false
+                allowNull: false,
             },
             visit_state: {
                 type: DataTypes.ENUM('pending', 'in_progress', 'finished'),
-                allowNull: false
+                allowNull: false,
             },
             visit_date: {
                 type: DataTypes.DATE,
-                allowNull: false
+                allowNull: false,
             },
             animal_id: {
                 type: DataTypes.INTEGER,
-                allowNull: false
-            }
+                allowNull: false,
+            },
         },
         {
-            tableName: 'vet_visits'
+            tableName: 'vet_visits',
         }
     );
 
-    vetVisits.associate = (models) => {
+    vetVisits.associate = models => {
         models.animals
             ? vetVisits.belongsTo(models.animals, { foreignKey: 'animal_id' })
             : false;

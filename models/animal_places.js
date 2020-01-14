@@ -8,12 +8,16 @@ module.exports = function(sequelize, DataTypes) {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 autoIncrement: true,
-                primaryKey: true
+                primaryKey: true,
             },
-            animal_count: {
+            capacity: {
                 type: DataTypes.INTEGER,
-                allowNull: true,
-                defaultValue: '0'
+                allowNull: false,
+                defaultValue: '15',
+            },
+            name: {
+                type: DataTypes.STRING,
+                allowNull: false,
             },
             place_condition: {
                 type: DataTypes.ENUM(
@@ -23,15 +27,15 @@ module.exports = function(sequelize, DataTypes) {
                     'good',
                     'very_good'
                 ),
-                allowNull: false
-            }
+                allowNull: false,
+            },
         },
         {
-            tableName: 'animal_places'
+            tableName: 'animal_places',
         }
     );
 
-    animalPlaces.associate = (model) => {
+    animalPlaces.associate = model => {
         model.animals
             ? animalPlaces.hasMany(model.animals, { foreignKey: 'animal_id' })
             : false;

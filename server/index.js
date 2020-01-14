@@ -1,17 +1,17 @@
-const helmet = require("helmet");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const session = require("express-session");
-const routes = require("./routes");
-const Sequelize = require("sequelize");
-const loadModels = require("../models");
-const logger = require("./rsrc/logger");
+const helmet = require('helmet');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const routes = require('./routes');
+const Sequelize = require('sequelize');
+const loadModels = require('../models');
+const logger = require('./rsrc/logger');
 
-const SESS_NAME = "_id";
+const SESS_NAME = '_id';
 
 class Server {
     constructor() {
-        this.expressApp = require("express")();
+        this.expressApp = require('express')();
     }
 
     async _setupSequelizers(config) {
@@ -20,21 +20,21 @@ class Server {
 
         await this._setupSequelize(
             this.sequelizers,
-            "admins",
+            'admins',
             config,
             config.admins.user,
             config.admins.password
         );
         await this._setupSequelize(
             this.sequelizers,
-            "caretakers",
+            'caretakers',
             config,
             config.caretakers.user,
             config.caretakers.password
         );
         await this._setupSequelize(
             this.sequelizers,
-            "vets",
+            'vets',
             config,
             config.vets.user,
             config.vets.password
@@ -63,16 +63,16 @@ class Server {
         //autheticate credentials and connect
         try {
             await sequelize.authenticate();
-            console.log("[SEQUELIZE]: Connected!");
+            console.log('[SEQUELIZE]: Connected!');
 
             // load models made from sequelize-auto
             await loadModels(sequelize, sequlizeName);
             console.log(
-                "[SEQUELIZE]: Successfuly loaded models for " +
+                '[SEQUELIZE]: Successfuly loaded models for ' +
                     sequlizeName.toUpperCase()
             );
         } catch (error) {
-            console.error("[SEQUELIZE]: ERROR", error.message);
+            console.error('[SEQUELIZE]: ERROR', error.message);
         }
 
         // link sequelize to this context
@@ -88,76 +88,37 @@ class Server {
         });
     }
 
+    // prettier-ignore
     _setupRoutes() {
-        this.expressApp.get("/", routes.hello);
+        this.expressApp.get('/', routes.hello);
 
-        this.expressApp.post("/login", routes.logIn);
-        this.expressApp.get("/logout", routes.logOut);
+        this.expressApp.post('/login', routes.logIn);
+        this.expressApp.get('/logout', routes.logOut);
 
-        this.expressApp.get("/home", routes.auth, routes.hello);
-        this.expressApp.post(
-            "/users",
-            routes.auth,
-            routes.authAdmin,
-            routes.createUser
-        );
-        this.expressApp.put("/users", routes.auth, routes.updateUserProfile);
+        this.expressApp.get('/home', routes.auth, routes.hello);
+        this.expressApp.post('/users',routes.auth,routes.authAdmin,routes.createUser);
+        this.expressApp.put('/users', routes.auth, routes.updateUserProfile);
+        this.expressApp.delete('/users/:id', routes.auth,routes.authAdmin ,routes.deleteUserProfile);
 
-        this.expressApp.post(
-            "/vet-visits",
-            routes.auth,
-            routes.authCaretakerOrVet,
-            routes.createVisit
-        );
-        this.expressApp.put(
-            "/vet-visits/:id",
-            routes.auth,
-            routes.authCaretaker,
-            routes.updateVisit
-        );
-        this.expressApp.put(
-            "/vet-visits/vet/:id",
-            routes.auth,
-            routes.authVet,
-            routes.updateFinishedVisitStatus
-        );
-        this.expressApp.delete(
-            "/vet-visits/vet/:id",
-            routes.auth,
-            routes.authVet,
-            routes.deleteVisit
-        );
-        this.expressApp.get(
-            "/vet-visits/vet/",
-            routes.auth,
-            routes.authVet,
-            routes.getAllVisitsByVetID
-        );
-        this.expressApp.get(
-            "/vet-visits/vet/",
-            routes.auth,
-            routes.authVet,
-            routes.getAllVisitsByVetID
-        );
+        this.expressApp.post('/vet-visits',routes.auth,routes.authCaretakerOrVet,routes.createVisit);
+        this.expressApp.put('/vet-visits/:id',routes.auth,routes.authCaretaker,routes.updateVisit);
+        this.expressApp.put('/vet-visits/:id/vet/',routes.auth,routes.authVet,routes.updateFinishedVisitStatus);
+        this.expressApp.delete('/vet-visits/:id/vet',routes.auth,routes.authVet,routes.deleteVisit);
+        this.expressApp.get('/vet-visits/vet/',routes.auth,routes.authVet,routes.getAllVisitsByVetID);
 
-        this.expressApp.post(
-            "/animals/",
-            routes.auth,
-            routes.authCaretaker,
-            routes.createAnimalProfile
-        );
-        this.expressApp.get(
-            "/animals/vet/:id",
-            routes.auth,
-            routes.authVet,
-            routes.getAnimalsHealth
-        );
-        this.expressApp.put(
-            "/animals/vet/:id",
-            routes.auth,
-            routes.authVet,
-            routes.updateAnimalsHealth
-        );
+        this.expressApp.post('/animals/',routes.auth,routes.authCaretaker,routes.createAnimalProfile);
+        this.expressApp.get('/animals/:id/vet/',routes.auth,routes.authVet,routes.getAnimalsHealth);
+        this.expressApp.put('/animals/:id/vet/',routes.auth,routes.authVet,routes.updateAnimalsHealth);
+        this.expressApp.get('/animals/',routes.auth,routes.authCaretaker,routes.getAnimalsAssignedToCaretaker);
+        this.expressApp.put('/animals/:id',routes.auth,routes.authCaretaker,routes.updateAnimalProfile);
+        this.expressApp.delete('/animals/:id',routes.auth,routes.authCaretaker,routes.deleteAnimalProfile);
+
+        this.expressApp.get('/animal-places/',routes.auth,routes.authCaretaker,routes.getAllAnimalPlaces);
+        this.expressApp.post('/animal-places/',routes.auth,routes.authCaretaker,routes.createAnimalPlace);
+        this.expressApp.put('/animal-places/:id',routes.auth,routes.authCaretaker,routes.updateAnimalPlace);
+        this.expressApp.delete('/animal-places/:id',routes.auth,routes.authCaretaker,routes.deleteAnimalPlace);
+
+
 
         this._setupEnumGetters(this.expressApp);
     }
@@ -167,13 +128,12 @@ class Server {
         this.expressApp.use(helmet());
         this.expressApp.use(bodyParser.json());
         this.expressApp.use(bodyParser.urlencoded({ extended: true }));
-        // this.expressApp.use(cookieParser());
         this.expressApp.use((req, res, next) => {
             req.sequelizers = {
                 admins: this.sequelizers.admins,
                 caretakers: this.sequelizers.caretakers,
                 vets: this.sequelizers.vets,
-                guest: this.sequelizers.guest
+                guest: this.sequelizers.guest,
             };
             next();
         });
@@ -182,13 +142,13 @@ class Server {
                 name: SESS_NAME,
                 resave: false,
                 cookie: {
-                    maxAge: 1000 * 60 * 60 * 2,
+                    maxAge: 2 * 60 * 60 * 1000,
                     sameSite: true,
                     // SECURE MUST TRUE IN PRODUCTION!!!
-                    secure: false
+                    secure: false,
                 },
                 saveUninitialized: false,
-                secret: "topsecret"
+                secret: 'topsecret',
             })
         );
         this.expressApp.use(logger);
@@ -198,33 +158,33 @@ class Server {
         const enums = [
             {
                 // poprawic na ENG
-                url: "/administrators/positions",
-                enum: "enum_administrators_position"
+                url: '/administrators/positions',
+                enum: 'enum_administrators_position',
             },
             {
                 // poprawic na ENG
-                url: "/animals-places/conditions",
-                enum: "enum_animal_places_condition"
+                url: '/animals-places/conditions',
+                enum: 'enum_animal_places_condition',
             },
             {
                 // poprawic na 5 scale degree
-                url: "/animal/health-conditions",
-                enum: "enum_animals_health"
+                url: '/animal/health-conditions',
+                enum: 'enum_animals_health',
             },
             {
-                url: "/caretakers/shifts",
-                enum: "enum_caretakers_shift"
+                url: '/caretakers/shifts',
+                enum: 'enum_caretakers_shift',
             },
             {
                 // poprawić na jednoczesciowe napisy
-                url: "/vet-visits/states",
-                enum: "enum_vet_visits_visit_state"
+                url: '/vet-visits/states',
+                enum: 'enum_vet_visits_visit_state',
             },
             {
                 // poprawic na ENG
-                url: "/vets/specialties",
-                enum: "enum_vets_vet_specialty"
-            }
+                url: '/vets/specialties',
+                enum: 'enum_vets_vet_specialty',
+            },
         ];
 
         for (let obj of enums) {
