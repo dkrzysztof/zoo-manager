@@ -95,11 +95,18 @@ class Server {
         this.expressApp.get('/logout', routes.logOut);
         
         this.expressApp.get('/home', routes.auth, routes.hello);
-        this.expressApp.get('/health/:id', routes.getAnimalHealth);
         this.expressApp.post('/users', routes.auth, routes.authAdmin, routes.createUser);
         this.expressApp.put('/users', routes.auth, routes.updateUserProfile);
 
-        this.expressApp.post('/vet-visits', routes.auth, routes.authVet, routes.createVisit);
+        this.expressApp.post('/vet-visits', routes.auth, routes.authCaretakerOrVet, routes.createVisit);
+        this.expressApp.put('/vet-visits/:id', routes.auth, routes.authCaretaker, routes.updateVisit);
+        this.expressApp.put('/vet-visits/vet/:id', routes.auth, routes.authVet, routes.updateFinishedVisitStatus);
+        this.expressApp.delete('/vet-visits/vet/:id', routes.auth, routes.authVet, routes.deleteVisit);
+        this.expressApp.get('/vet-visits/vet/', routes.auth, routes.authVet, routes.getAllVisitsByVetID);
+        this.expressApp.get('/vet-visits/vet/', routes.auth, routes.authVet, routes.getAllVisitsByVetID);
+
+        this.expressApp.get('/animals/vet/:id', routes.auth, routes.authVet, routes.getAnimalsHealth);
+        this.expressApp.put('/animals/vet/:id', routes.auth, routes.authVet, routes.updateAnimalsHealth);
 
         this._setupEnumGetters(this.expressApp);
     }

@@ -23,7 +23,7 @@ async function loadModels(sequelize, sequelizeName) {
             ];
             break;
         case 'vets':
-            MODEL_LIST = ['addresses', 'vet_visits', 'vets', 'workers','health_view'];
+            MODEL_LIST = ['addresses', 'vet_visits', 'vets', 'workers','animal_health'];
             break;
         case 'guests':
             MODEL_LIST = ['animal_places', 'animals'];

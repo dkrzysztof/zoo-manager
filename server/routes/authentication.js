@@ -115,21 +115,37 @@ async function getUserAccountType(sequelize, usernameOrWorkerId){
 }
 module.exports.getUserAccountType = getUserAccountType;
 
-module.exports.authAccountType = async function(req, res, next, accountType) {
+module.exports.authAccountType = async function(req, res, next, accountTypeArray) {
     if (!req.session._id) {
         res.status(403).send('Forbidden');
     } else {
         try {
             const response = await getUserAccountType(req.sequelizers.admins,req.session._id);
-            if(response[accountType]){
-                next();
+            let IsOneOfType = false;
+            for(let accountType of accountTypeArray){
+                if(response[accountType]){
+                    IsOneOfType = true;
+                    break;
+                }
             }
-            else {
+            if(!IsOneOfType){
                 return res.status(403).send("Account access is forbidden.");
             }
+            next();
         } catch (error) {
             console.log('[ERROR]:', error.message);
             res.status(505).send();
         }
     }
 };
+
+module.exports.getVisitsByVetId = async function(sequelize, vetID){
+
+    const response = await sequelize.models.vet_visits.findAll({
+            where:{ 
+                vet_id: vetID
+            }
+        })
+    return response;
+
+}

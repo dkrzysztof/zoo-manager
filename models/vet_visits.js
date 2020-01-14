@@ -23,7 +23,7 @@ module.exports = function(sequelize, DataTypes) {
                 allowNull: false
             },
             visit_date: {
-                type: DataTypes.DATEONLY,
+                type: DataTypes.DATE,
                 allowNull: false
             },
             animal_id: {
