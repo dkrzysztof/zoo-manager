@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Segment } from 'semantic-ui-react';
 
-class HomepageContent extends React.Component {
+class EnclosuresContent extends React.Component {
     state = {
         
     }
@@ -10,11 +10,11 @@ class HomepageContent extends React.Component {
         return (
             <Container>
                <Segment>
-                This is homepage
+                This is enclosures page
                </Segment>
             </Container>
         );
     }
 }
 
-export default HomepageContent;
+export default EnclosuresContent;
