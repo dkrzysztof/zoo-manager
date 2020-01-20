@@ -10,6 +10,7 @@ import Workers from './views/Workers';
 import Enclosures from './views/Enclosures';
 import Vets from './views/Vets';
 import Settings from './views/Settings';
+import Login from './views/Login';
 
 
 const App = () => {
@@ -24,6 +25,7 @@ const App = () => {
             <Route exact path="/enclosures" component={Enclosures} />
             <Route exact path="/vets" component={Vets} />
             <Route exact path="/settings" component={Settings} />
+            <Route exact path="/login" component={Login} />
           </Switch>
         </Container>
       </BrowserRouter>

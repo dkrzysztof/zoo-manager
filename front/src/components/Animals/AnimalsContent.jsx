@@ -1,5 +1,7 @@
 import React from 'react';
-import { Container, Segment } from 'semantic-ui-react';
+import { Grid, GridColumn, Segment } from 'semantic-ui-react';
+import ActionMenu from "../Utility/ActionMenu";
+
 
 class AnimalsContent extends React.Component {
     state = {
@@ -8,11 +10,16 @@ class AnimalsContent extends React.Component {
     
     render() {
         return (
-            <Container>
-               <Segment>
-                This is animals page
-               </Segment>
-            </Container>
+            <Grid columns={16}>
+                <GridColumn width={3}>
+                    <ActionMenu />
+                </GridColumn>
+                <GridColumn width={12}>
+                    <Segment inverted color="grey">
+                        
+                    </Segment>
+                </GridColumn>
+            </Grid>
         );
     }
 }

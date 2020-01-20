@@ -1,18 +1,22 @@
 import React from 'react';
-import { Container, Segment } from 'semantic-ui-react';
+import { Grid, GridColumn, Segment } from 'semantic-ui-react';
+import ActionMenu from '../Utility/ActionMenu';
 
 class WorkersContent extends React.Component {
-    state = {
-        
-    }
-    
+    state = {};
+
     render() {
         return (
-            <Container>
-               <Segment>
-                This is workers page
-               </Segment>
-            </Container>
+            <Grid columns={16}>
+                <GridColumn width={3}>
+                    <ActionMenu />
+                </GridColumn>
+                <GridColumn width={12}>
+                    <Segment inverted color="grey">
+                        
+                    </Segment>
+                </GridColumn>
+            </Grid>
         );
     }
 }

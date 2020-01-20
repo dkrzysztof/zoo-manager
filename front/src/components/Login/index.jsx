@@ -1,15 +1,12 @@
 import React from 'react';
-import { BrowserRouter, Switch} from 'react-router-dom';
 import { Container} from 'semantic-ui-react';
+import LoginPanel from './LoginPanel';
 
 const LoginContent = () => {
   return (
-    <BrowserRouter>
-      <Container text>
-        <Switch>
-        </Switch>
-      </Container>
-    </BrowserRouter>
+    <Container>
+      <LoginPanel />
+    </Container>
   );
 };
 
