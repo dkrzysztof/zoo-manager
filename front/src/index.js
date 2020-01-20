@@ -11,6 +11,7 @@ import Enclosures from './views/Enclosures';
 import Vets from './views/Vets';
 import Settings from './views/Settings';
 import Login from './views/Login';
+import { StoreProvider } from './Store';
 
 
 const App = () => {
@@ -34,6 +35,9 @@ const App = () => {
   
   
   ReactDOM.render(
-    <App /> , 
+    <StoreProvider>
+      <App />
+    </StoreProvider>
+    , 
     document.querySelector('#root'),
   );

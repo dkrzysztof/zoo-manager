@@ -1,5 +1,6 @@
 import React from 'react';
 import { Icon, Grid, Container, GridColumn, Label} from 'semantic-ui-react';
+import Store from '../../Store';
 
 class WorkerInfo extends React.Component {
     state = {
@@ -10,6 +11,13 @@ class WorkerInfo extends React.Component {
         accType: "Pracownik",
         firstDay: "23/23/23",
     };
+
+    static contextType = Store;
+
+    componentDidMount(){
+        this.setState({name: this.context.me.firstname, surname: this.context.me.lastname});
+        console.log(this.context.me);
+    }
 
     render() {
         return (

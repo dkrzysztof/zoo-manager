@@ -1,14 +1,57 @@
 import React from 'react';
 import { Button, Form, Grid, Header, Segment } from 'semantic-ui-react';
+import { Redirect } from 'react-router-dom';
 
+import Store from '../../Store';
+import ErrorMessage from '../ErrorMessage';
+const axios = require('axios');
 
 class LoginPanel extends React.Component {
     state = {
         username: '',
         password: '',
+        invalidData: null,
+    };
+
+    static contextType = Store;
+
+    onButtonSubmit = async e => {
+        e.preventDefault();
+        const data = this.state;
+        delete this.state['invalidData'];
+        try {
+            const res = await axios({
+                method: 'post',
+                url: '/login',
+                data: data,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            console.log(res.status);
+            this.context.changeStore('me', res.data);
+            if (res.status === 200) {
+                this.context.changeStore('isLogged', true);
+                this.setState({ isLogged: true });
+            } else {
+                this.setState({ invalidData: true });
+            }
+        } catch (error) {
+            console.error('Error Login:', error);
+            this.setState({ invalidData: true });
+        }
+    };
+
+    loginValidate = e => {
+        if (this.state.invalidData) {
+            return <ErrorMessage message="Invalid email or password" />;
+        } else {
+            return null;
+        }
     };
 
     render() {
+        if (this.context.isLogged) return <Redirect to="/" />;
         return (
             <Grid centered>
                 <Segment compact>
@@ -33,6 +76,7 @@ class LoginPanel extends React.Component {
                             onChange={e =>
                                 this.setState({ password: e.target.value })
                             }
+                            error={this.loginValidate()}
                         />
                         <Grid textAlign="center" padded>
                             <Button color="green" type="submit">
