@@ -4,12 +4,14 @@ import ActionMenu from "../Utility/ActionMenu";
 import setHeaders from '../../utils/setHeaders';
 import axios from 'axios';
 import AnimalsTable from './AnimalsTable';
+import Store from '../../Store';
 
 class AnimalsContent extends React.Component {
     state ={
         results: [],
     };
-    
+
+    static contextType = Store;
     
     animalsTableRef = React.createRef();
 
@@ -27,6 +29,7 @@ class AnimalsContent extends React.Component {
     }
 
     componentDidMount() {
+        this.context.changeStore('selectionType', 'animal')
         this.getAnimals();
     }
 
@@ -38,7 +41,7 @@ class AnimalsContent extends React.Component {
         return (
             <Grid columns={16}>
                 <GridColumn width={3}>
-                    <ActionMenu />
+                    <ActionMenu/>
                 </GridColumn>
                 <GridColumn width={12}>
                     <Segment inverted color="grey">

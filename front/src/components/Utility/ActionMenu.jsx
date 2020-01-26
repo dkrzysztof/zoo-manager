@@ -1,5 +1,6 @@
 import React from 'react';
-import { Icon, Button, Segment, Modal } from 'semantic-ui-react';
+import { Icon, Button, Segment, Modal, ModalContent } from 'semantic-ui-react';
+import AnimalAddContent from './AnimalModals/AnimalAddContent';
 
 class ActionMenu extends React.Component {
     state = { visible: false };
@@ -8,13 +9,17 @@ class ActionMenu extends React.Component {
         return (
             <Segment compact>
                 <Modal
+                    size="tiny"
                     trigger={
                         <Button>
                             <Icon name="plus" size="huge" />
                         </Button>
                     }
-                    content="Dodaj"
-                ></Modal>
+                >
+                    <ModalContent>
+                        <AnimalAddContent />
+                    </ModalContent>
+                </Modal>
                 <br></br>
                 <br></br>
                 <Modal
@@ -25,7 +30,6 @@ class ActionMenu extends React.Component {
                     }
                     content="Usuń"
                 ></Modal>
-
                 <br></br>
                 <br></br>
                 <Modal

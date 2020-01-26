@@ -5,7 +5,9 @@ const Context = React.createContext();
 export class StoreProvider extends React.Component {
   state = { 
     isLogged: false,
-    me: null
+    me: null,
+    selectionID: null,
+    selectionType: null,
   };
 
   changeStore = (name, value) => {
