@@ -21,8 +21,9 @@ const healthOptions = [
     { key: 'vg', text: 'Very Good', value: 'very_good' },
 ];
 
-class AnimalAddContent extends React.Component {
+class AnimalModifyContent extends React.Component {
     state = {
+        id: '',
         name: '',
         species: '',
         birth_date: { year: '', month: '', day: '' },
@@ -41,12 +42,23 @@ class AnimalAddContent extends React.Component {
 
     onButtonClick = async () => {
         await axios({
-          url: '/animals',
-          method: 'post',
-          data: this.state,
-          headers: setHeaders(),
-        }).then(res => {console.log(res.status)}, err => {console.log(err)});
+            url: `/animals/${this.state.id}`,
+            method: 'put',
+            data: this.state,
+            headers: setHeaders(),
+        }).then(
+            res => {
+                console.log(res.status);
+            },
+            err => {
+                console.log(err);
+            }
+        );
     };
+
+    componentDidMount() {
+        this.setState({ id: this.context.selectionID });
+    }
 
     componentDidUpdate() {
         console.log(this.state);
@@ -57,13 +69,9 @@ class AnimalAddContent extends React.Component {
             <Container>
                 <Container textAlign="center">
                     <Header size="large" textAlign="center">
-                        Add New Animal
+                        Edit Animal
                     </Header>
-                    <Icon
-                        name="paw"
-                        color="green"
-                        size="massive"
-                    ></Icon>
+                    <Icon name="paw" color="green" size="massive"></Icon>
                 </Container>
                 <Form>
                     <Grid columns={16}>
@@ -104,7 +112,7 @@ class AnimalAddContent extends React.Component {
                         <Grid.Column width={16}>
                             <Form.Group widths="3">
                                 <Form.Field
-                                    type='number'
+                                    type="number"
                                     control={Input}
                                     placeholder="Day"
                                     label="Day of birth"
@@ -112,7 +120,7 @@ class AnimalAddContent extends React.Component {
                                     onChange={this.handleInputChangeD}
                                 />
                                 <Form.Field
-                                    type='number'
+                                    type="number"
                                     control={Input}
                                     placeholder="Month"
                                     label="Month of birth"
@@ -120,7 +128,7 @@ class AnimalAddContent extends React.Component {
                                     onChange={this.handleInputChangeD}
                                 />
                                 <Form.Field
-                                    type='number'
+                                    type="number"
                                     control={Input}
                                     placeholder="Year"
                                     label="Year of birth"
@@ -140,4 +148,4 @@ class AnimalAddContent extends React.Component {
     }
 }
 
-export default AnimalAddContent;
+export default AnimalModifyContent;

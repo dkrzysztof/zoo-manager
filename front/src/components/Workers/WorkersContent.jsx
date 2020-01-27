@@ -4,12 +4,14 @@ import ActionMenu from '../Utility/ActionMenu';
 import setHeaders from '../../utils/setHeaders';
 import axios from 'axios';
 import WorkersTable from './WorkersTable';
+import Store from '../../Store';
 
 class WorkersContent extends React.Component {
     state ={
         results: [],
     };
     
+    static contextType = Store;
     
     workersTableRef = React.createRef();
 
@@ -27,6 +29,7 @@ class WorkersContent extends React.Component {
     }
 
     componentDidMount() {
+        this.context.changeStore('selectionType', 'worker');
         this.getWorkers();
     }
 

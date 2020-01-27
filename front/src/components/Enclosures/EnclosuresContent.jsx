@@ -4,12 +4,14 @@ import ActionMenu from "../Utility/ActionMenu";
 import setHeaders from '../../utils/setHeaders';
 import axios from 'axios';
 import EnclosuresTable from './EnclosuresTable';
+import Store from '../../Store';
 
 class EnclosuresContent extends React.Component {
     state ={
         results: [],
     };
     
+    static contextType = Store;
     
     enclosuresTableRef = React.createRef();
 
@@ -27,6 +29,7 @@ class EnclosuresContent extends React.Component {
     }
 
     componentDidMount() {
+        this.context.changeStore('selectionType', 'enclosure');
         this.getEnclosures();
     }
 

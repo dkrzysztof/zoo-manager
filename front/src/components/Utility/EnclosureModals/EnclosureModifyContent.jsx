@@ -20,8 +20,9 @@ const conditionOptions = [
     { key: 'vg', text: 'Very Good', value: 'very_good' },
 ];
 
-class EnclosureAddContent extends React.Component {
+class EnclosureModifyContent extends React.Component {
     state = {
+        id: '',
         name: '',
         place_condition: '',
         capacity: '',
@@ -33,8 +34,8 @@ class EnclosureAddContent extends React.Component {
 
     onButtonClick = async () => {
         await axios({
-            url: '/animal-places',
-            method: 'post',
+            url: `/animal-places/${this.state.id}`,
+            method: 'put',
             data: this.state,
             headers: setHeaders(),
         }).then(
@@ -47,6 +48,10 @@ class EnclosureAddContent extends React.Component {
         );
     };
 
+    componentDidMount() {
+        this.setState({ id: this.context.selectionID });
+    }
+
     componentDidUpdate() {
         console.log(this.state);
     }
@@ -56,7 +61,7 @@ class EnclosureAddContent extends React.Component {
             <Container>
                 <Container textAlign="center">
                     <Header size="large" textAlign="center">
-                        Add New Animal Place
+                        Edit Animal Place
                     </Header>
                     <Icon
                         name="chess board"
@@ -97,4 +102,4 @@ class EnclosureAddContent extends React.Component {
     }
 }
 
-export default EnclosureAddContent;
+export default EnclosureModifyContent;
