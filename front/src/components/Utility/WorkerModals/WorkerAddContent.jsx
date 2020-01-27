@@ -15,9 +15,39 @@ import axios from 'axios';
 import setHeaders from '../../../utils/setHeaders';
 
 const typeOptions = [
-    { key: 'ctr', text: 'Caretaker', value: 'caretaker' },
-    { key: 'vet', text: 'Vet', value: 'vet' },
-    { key: 'adm', text: 'Admin', value: 'admin' },
+    { key: 'ctr', text: 'Caretaker', value: 'caretakers' },
+    { key: 'vet', text: 'Vet', value: 'vets' },
+    { key: 'adm', text: 'Admin', value: 'administrators' },
+];
+
+const shiftOptions = [
+    { key: 'm', text: 'Morning', value: 'morning' },
+    { key: 'e', text: 'Evening', value: 'evening' },
+    { key: 'n', text: 'Night', value: 'night' },
+];
+
+const adminOptions = [
+    { key: 'mgr', text: 'Manager', value: 'manager' },
+    { key: 'wkr', text: 'Worker', value: 'worker' },
+    { key: 'ldr', text: 'Leader', value: 'leader' },
+];
+
+const vetsOptions = [
+    { key: 'ext', text: 'Exotic Animals', value: 'exotic_animal_veterinarian' },
+    { key: 'equ', text: 'Equine', value: 'equine_medicine' },
+    { key: 'aqu', text: 'Aquatic', value: 'aquatic_medicine' },
+    { key: 'con', text: 'Conservation', value: 'conservation_medicine' },
+    { key: 'bir', text: 'Birds', value: 'birds_medicine' },
+    { key: 'car', text: 'Cardiology', value: 'cardiology' },
+    { key: 'nut', text: 'Nutrition', value: 'nutrition' },
+    { key: 'fel', text: 'Feline', value: 'feline_medicine' },
+    { key: 'can', text: 'Canine', value: 'canine_medicine' },
+    { key: 'fsh', text: 'Fish', value: 'fish_medicine' },
+    {
+        key: 'rep',
+        text: 'Reptile and Amphibian',
+        value: 'reptile_and_amphibian_medicine',
+    },
 ];
 
 class WorkerAddContent extends React.Component {
@@ -26,13 +56,14 @@ class WorkerAddContent extends React.Component {
         password: '',
         addressInfo: {
             street: '',
-            building_number: '',
+            buildingNumber: '',
+            flatNumber: '',
             city: '',
-            post_code: '',
+            postCode: '',
             country: '',
         },
         workerInfo: { firstname: '', lastname: '', phonenumber: '' },
-        accountInfo: { type: '' },
+        accountInfo: {},
     };
     static contextType = Store;
 
@@ -116,11 +147,42 @@ class WorkerAddContent extends React.Component {
                                 name="password"
                                 onChange={this.handleInputChange}
                             />
+                            {this.state.accountInfo.type === 'caretakers' ? (
+                                <Form.Select
+                                    control={Select}
+                                    placeholder=""
+                                    options={shiftOptions}
+                                    label="Shift"
+                                    name="shift"
+                                    onChange={this.handleInputChangeAccount}
+                                />
+                            ) : null}
+                            {this.state.accountInfo.type === 'vets' ? (
+                                <Form.Select
+                                    control={Select}
+                                    placeholder=""
+                                    options={vetsOptions}
+                                    label="Specialty"
+                                    name="vet_specialty"
+                                    onChange={this.handleInputChangeAccount}
+                                />
+                            ) : null}
+                            {this.state.accountInfo.type ===
+                            'administrators' ? (
+                                <Form.Select
+                                    control={Select}
+                                    placeholder=""
+                                    options={adminOptions}
+                                    label="Position"
+                                    name="position"
+                                    onChange={this.handleInputChangeAccount}
+                                />
+                            ) : null}
                         </Grid.Column>
                     </Grid>
                     <Divider horizontal>
                         <Header as="h4">
-                            <Icon name="tag" />
+                            <Icon name="info" />
                             Informations
                         </Header>
                     </Divider>
@@ -154,7 +216,7 @@ class WorkerAddContent extends React.Component {
                     </Grid>
                     <Divider horizontal>
                         <Header as="h4">
-                            <Icon name="tag" />
+                            <Icon name="address card" />
                             Address
                         </Header>
                     </Divider>
@@ -183,18 +245,27 @@ class WorkerAddContent extends React.Component {
                             />
                         </Grid.Column>
                         <Grid.Column width={8}>
-                            <Form.Field
-                                control={Input}
-                                placeholder="Building Number"
-                                label="Building Number"
-                                name="building_number"
-                                onChange={this.handleInputChangeAddress}
-                            />
+                            <Form.Group widths="2">
+                                <Form.Field
+                                    control={Input}
+                                    placeholder="Building Number"
+                                    label="Building Number"
+                                    name="buildingNumber"
+                                    onChange={this.handleInputChangeAddress}
+                                />
+                                <Form.Field
+                                    control={Input}
+                                    placeholder="Flat Number"
+                                    label="Flat Number"
+                                    name="flatNumber"
+                                    onChange={this.handleInputChangeAddress}
+                                />
+                            </Form.Group>
                             <Form.Field
                                 control={Input}
                                 placeholder="Post code"
                                 label="Post code"
-                                name="post_code"
+                                name="postCode"
                                 onChange={this.handleInputChangeAddress}
                             />
                         </Grid.Column>

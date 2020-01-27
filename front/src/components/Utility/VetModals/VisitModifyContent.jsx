@@ -76,6 +76,7 @@ class VisitAddContent extends React.Component {
                         <Grid.Column width={8}>
                             <Form.Field
                                 control={Input}
+                                type='number'
                                 placeholder="VetID"
                                 label="VetID"
                                 name="vet_id"

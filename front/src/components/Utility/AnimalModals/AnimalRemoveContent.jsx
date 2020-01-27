@@ -20,8 +20,9 @@ class AnimalRemoveContent extends React.Component {
     }).then(res => {console.log(res.status)}, err => {console.log(err)});
     };
 
-    componentDidMount(){
-        this.setState({id: this.context.selectionID});
+    componentDidMount= async() => {
+        await this.setState({id: this.context.selectionID});
+        console.log(this.state)
     }
 
   render() {

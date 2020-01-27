@@ -7,7 +7,6 @@ import {
     Form,
     Input,
     Button,
-    Select,
 } from 'semantic-ui-react';
 import Store from '../../../Store';
 import axios from 'axios';
