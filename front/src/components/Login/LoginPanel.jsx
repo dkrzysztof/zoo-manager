@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form, Grid, Header, Segment, Container } from 'semantic-ui-react';
+import { Button, Form, Grid, Header, Segment, Container, Image } from 'semantic-ui-react';
 import { Redirect } from 'react-router-dom';
 
 import Store from '../../Store';
@@ -60,10 +60,12 @@ class LoginPanel extends React.Component {
         return (
             <Container>
             <Grid centered>
-                <Segment compact>
+            
+                <Segment compact style={{marginTop: "5%", padding: "5%"}}>
+                
+                <Image src='https://i.imgur.com/BXOF58I.png' size='large' crossorigin="" />
                     <Form error onSubmit={this.onButtonSubmit}>
-                        <Header textAlign="center">Menedżer Ogrodu </Header>
-                        <Header textAlign="center"> Zoologicznego </Header>
+                       
                         <Form.Input
                             label="Username"
                             placeholder="Username"
@@ -92,12 +94,16 @@ class LoginPanel extends React.Component {
                     </Form>
                 </Segment>
             </Grid>
-            <Button color="green" onClick={this.onGuestButtonClick}>
-                                Guest
-            </Button>
+           
             </Container>
         );
     }
 }
 
+
+//<Header textAlign="center">Menedżer Ogrodu </Header>
+//<Header textAlign="center"> Zoologicznego </Header>
+//<Button color="green" onClick={this.onGuestButtonClick}>
+//Guest
+//</Button>
 export default LoginPanel;
