@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form, Grid, Header, Segment } from 'semantic-ui-react';
+import { Button, Form, Grid, Header, Segment, Container } from 'semantic-ui-react';
 import { Redirect } from 'react-router-dom';
 
 import Store from '../../Store';
@@ -42,6 +42,11 @@ class LoginPanel extends React.Component {
         }
     };
 
+    onGuestButtonClick = (e) => {
+        e.preventDefault();
+        window.location.href= "guest"
+    }
+
     loginValidate = e => {
         if (this.state.invalidData) {
             return <ErrorMessage message="Invalid email or password" />;
@@ -53,6 +58,7 @@ class LoginPanel extends React.Component {
     render() {
         if (this.context.isLogged) return <Redirect to="/" />;
         return (
+            <Container>
             <Grid centered>
                 <Segment compact>
                     <Form error onSubmit={this.onButtonSubmit}>
@@ -86,6 +92,10 @@ class LoginPanel extends React.Component {
                     </Form>
                 </Segment>
             </Grid>
+            <Button color="green" onClick={this.onGuestButtonClick}>
+                                Guest
+            </Button>
+            </Container>
         );
     }
 }

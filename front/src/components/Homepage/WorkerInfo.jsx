@@ -4,18 +4,34 @@ import Store from '../../Store';
 
 class WorkerInfo extends React.Component {
     state = {
-        name: "Jan",
-        surname: "Kowalski",
-        birthDate: "23/23/23",
+        name: '',
+        surname: '',
+        phoneNumber: '',
         email: "malpa@gg.wp",
-        accType: "Pracownik",
-        firstDay: "23/23/23",
+        accType: '',
+        city: ''
     };
 
     static contextType = Store;
 
-    componentDidMount(){
-        this.setState({name: this.context.me.firstname, surname: this.context.me.lastname});
+    getAccType = async () => {
+        if(this.context.me.vet && !this.context.me.administrator && !this.context.me.caretaker){
+            this.setState({accType: "Vet"});
+        }else if(this.context.me.caretaker  && !this.context.me.administrator && this.context.me.vet){
+            this.setState({accType: "Caretaker"});
+        }else if(this.context.me.administrator  && !this.context.me.vet && !this.context.me.caretaker){
+            this.setState({accType: "Administrator"});
+        }else if(this.context.me.vet && this.context.me.administrator && this.context.me.caretaker){
+            this.setState({accType: "SuperUser"});
+        }else{
+            this.setState({accType: "Worker"});
+        }
+       
+    }
+
+    componentDidMount = async () => {
+        await this.getAccType();
+        this.setState({name: this.context.me.firstname, surname: this.context.me.lastname, phoneNumber: this.context.me.phonenumber, city: this.context.me.address.city});
         console.log(this.context.me);
     }
 
@@ -40,8 +56,8 @@ class WorkerInfo extends React.Component {
                     </Grid.Row>
                     <Grid.Row>
                         <GridColumn>
-                        <Label>{this.state.birthDate}</Label><br></br>
-                            Birth date
+                        <Label>{this.state.phoneNumber}</Label><br></br>
+                            Phone number
                         </GridColumn>
                         <GridColumn>
                         <Label>{this.state.email}</Label><br></br>
@@ -54,8 +70,8 @@ class WorkerInfo extends React.Component {
                             Account Type
                         </GridColumn>
                         <GridColumn>
-                        <Label>{this.state.firstDay}</Label><br></br>
-                            First day in zoo
+                        <Label>{this.state.city}</Label><br></br>
+                            City
                         </GridColumn>
                     </Grid.Row>
                 </Grid>
