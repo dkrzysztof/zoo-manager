@@ -266,7 +266,7 @@ module.exports.deleteUserProfile = async function(req, res) {
             // prettier-ignore
             const deletedCaretakersAccounts = await req.sequelizers.admins.models.caretakers.destroy({where: {worker_id: userProfileToDelete.worker_id}, transaction: t});
             // prettier-ignore
-            const deletedWorkersAccounts = await userProfileToDelete.destroy({transaction:t});
+            let deletedWorkersAccounts = await userProfileToDelete.destroy({transaction:t});
 
             typeof deletedWorkersAccounts === 'object'
                 ? (deletedWorkersAccounts = 1)
@@ -383,11 +383,12 @@ module.exports.updateUserProfile = async (req, res) => {
 };
 
 module.exports.createVisit = async function(req, res) {
-    const { vet_id, animal_id, visit_date } = req.body;
+    const { vet_id, animal_id, visit_date, description } = req.body;
 
     const newVisit = {
         vet_id,
         animal_id,
+        description,
     };
 
     if (
@@ -433,7 +434,6 @@ module.exports.createVisit = async function(req, res) {
         const RESPONSE = await req.sequelizers.vets.models.vet_visits.create({
             ...newVisit,
             visit_date: visitDate.toISOString(),
-            description: '',
             visit_state: 'pending',
         });
 
