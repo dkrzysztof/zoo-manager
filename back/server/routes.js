@@ -227,7 +227,7 @@ module.exports.deleteUserProfile = async function(req, res) {
                 where: {
                     address_id: userProfileToDelete.dataValues.address_id,
                 },
-                group: ['address_id'],
+                group: ['worker_id'],
                 raw: true,
             })
         ).length;
@@ -237,13 +237,13 @@ module.exports.deleteUserProfile = async function(req, res) {
                 where: {
                     address_id: userProfileToDelete.dataValues.address_id,
                 },
-                group: ['address_id'],
+                group: ['animal_id'],
                 raw: true,
             })
         ).length;
 
         try {
-            if (countWr + countAn === 1) {
+            if (countAn === 0 && countWr === 1) {
                 const response = await req.sequelizers.admins.models.addresses.destroy(
                     {
                         where: {
