@@ -4,10 +4,10 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "node ./back/index.js",
-        "mon": "nodemon ./back/index.js",
+        "start": "node ./index.js",
+        "mon": "nodemon ./index.js",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "concurrently -n react,express -k \"cd front && npm run start\" \"npm run mon\""
+        "dev": "concurrently -n react,express -k \"cd ../front && npm run start\" \"npm run mon\""
     },
     "author": "",
     "license": "ISC",

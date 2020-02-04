@@ -87,7 +87,7 @@ class LoginPanel extends React.Component {
                             error={this.loginValidate()}
                         />
                         <Grid textAlign="center" padded>
-                            <Button color="green" type="submit">
+                            <Button color="green" type="submit" id="przycisk">
                                 Submit
                             </Button>
                         </Grid>

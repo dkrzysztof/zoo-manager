@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Menu } from 'semantic-ui-react';
-import 'semantic-ui-css/semantic.min.css';
+
 
 const AppBar = () => {
     return (
@@ -24,6 +24,7 @@ const AppBar = () => {
                 to="/animals"
                 activeClassName="active"
                 exact
+                id="animalsNav"
             />
             <br></br>
             <Menu.Item
@@ -42,6 +43,7 @@ const AppBar = () => {
                 to="/enclosures"
                 activeClassName="active"
                 exact
+                id="enclosureNav"
             />
             <br></br>
             <Menu.Item
