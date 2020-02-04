@@ -19,6 +19,17 @@ class VetsPattern extends React.Component {
         await this.context.changeStore('selectionType', 'vetVisits');
     };
 
+    formatDate = async () =>
+    {
+        let date = new Date(Date.parse(this.props.visit.visit_date));
+        let visDate = ''.concat(date.getFullYear(),"-", date.getMonth(),"-", date.getDay(),"-",date.getHours(),":", date.getMinutes(), "0");
+        await this.setState({visitDate: visDate});
+    }
+
+    componentDidMount(){
+      this.formatDate();
+    }
+    
     render() {
         return (
             <Container onClick={this.handleClick}>
@@ -32,7 +43,7 @@ class VetsPattern extends React.Component {
                                 {this.props.visit.description}
                             </GridColumn>
                             <GridColumn width={3}>
-                                {this.props.visit.visit_date}
+                                {this.state.visitDate}
                             </GridColumn>
                             <GridColumn width={3}>
                                 {this.props.visit.animal_id}
@@ -52,7 +63,7 @@ class VetsPattern extends React.Component {
                                 {this.props.visit.description}
                             </GridColumn>
                             <GridColumn width={3}>
-                                {this.props.visit.visit_date}
+                                {this.state.visitDate}
                             </GridColumn>
                             <GridColumn width={3}>
                                 {this.props.visit.animal_id}

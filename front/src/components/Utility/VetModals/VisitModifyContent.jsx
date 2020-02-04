@@ -22,9 +22,6 @@ const stateOptions = [
 class VisitAddContent extends React.Component {
     state = {
         id: '',
-        vet_id: '',
-        animal_id: '',
-        visit_date: { year: '', month: '', day: '', hour: '' },
         description: '',
         visit_state: '',
     };
@@ -40,7 +37,7 @@ class VisitAddContent extends React.Component {
 
     onButtonClick = async () => {
         await axios({
-            url: `/vet-visits/${this.state.id}`,
+            url: `/vet-visits/${this.state.id}/vet`,
             method: 'put',
             data: this.state,
             headers: setHeaders(),
@@ -73,25 +70,6 @@ class VisitAddContent extends React.Component {
                 </Container>
                 <Form>
                     <Grid columns={16}>
-                        <Grid.Column width={8}>
-                            <Form.Field
-                                control={Input}
-                                type='number'
-                                placeholder="VetID"
-                                label="VetID"
-                                name="vet_id"
-                                onChange={this.handleInputChange}
-                            />
-                        </Grid.Column>
-                        <Grid.Column width={8}>
-                            <Form.Field
-                                control={Input}
-                                placeholder="AnimalID"
-                                label="AnimalID"
-                                name="animal_id"
-                                onChange={this.handleInputChange}
-                            />
-                        </Grid.Column>
                         <Grid.Column width={16}>
                             <Form.Select
                                 control={Select}
@@ -108,43 +86,10 @@ class VisitAddContent extends React.Component {
                                 name="description"
                                 onChange={this.handleInputChange}
                             />
-                            <Form.Group widths="3">
-                                <Form.Field
-                                    type="number"
-                                    control={Input}
-                                    placeholder="Hour"
-                                    label="Hour of visit"
-                                    name="hour"
-                                    onChange={this.handleInputChangeD}
-                                />
-                                <Form.Field
-                                    type="number"
-                                    control={Input}
-                                    placeholder="Day"
-                                    label="Day of visit"
-                                    name="day"
-                                    onChange={this.handleInputChangeD}
-                                />
-                                <Form.Field
-                                    type="number"
-                                    control={Input}
-                                    placeholder="Month"
-                                    label="Month of visit"
-                                    name="month"
-                                    onChange={this.handleInputChangeD}
-                                />
-                                <Form.Field
-                                    type="number"
-                                    control={Input}
-                                    placeholder="Year"
-                                    label="Year of visit"
-                                    name="year"
-                                    onChange={this.handleInputChangeD}
-                                />
-                            </Form.Group>
                         </Grid.Column>
                     </Grid>
                 </Form>
+                <br></br>
                 <Button type="submit" onClick={this.onButtonClick}>
                     Add
                 </Button>
