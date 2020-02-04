@@ -222,25 +222,25 @@ module.exports.deleteUserProfile = async function(req, res) {
             userID
         );
 
-        const [{ countWr }] = await req.sequelizers.admins.models.workers.count(
-            {
+        const countWr = (
+            await req.sequelizers.admins.models.workers.count({
                 where: {
                     address_id: userProfileToDelete.dataValues.address_id,
                 },
                 group: ['address_id'],
                 raw: true,
-            }
-        );
+            })
+        ).length;
 
-        const [{ countAn }] = await req.sequelizers.admins.models.animals.count(
-            {
+        const countAn = (
+            await req.sequelizers.admins.models.animals.count({
                 where: {
                     address_id: userProfileToDelete.dataValues.address_id,
                 },
                 group: ['address_id'],
                 raw: true,
-            }
-        );
+            })
+        ).length;
 
         try {
             if (countWr + countAn === 1) {
