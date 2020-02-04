@@ -91,126 +91,145 @@ module.exports.authAdmin = async function(req, res, next) {
 };
 
 module.exports.createUser = async function(req, res) {
-    req.sequelizers.admins.transaction({ autocommit: false }).then(async t => {
-        const {
-            username,
-            password: worker_password,
-            addressInfo,
-            workerInfo,
-            accountInfo,
-        } = req.body;
+    req.sequelizers.admins
+        .transaction({ autocommit: false })
+        .then(async t => {
+            const {
+                username,
+                password: worker_password,
+                addressInfo,
+                workerInfo,
+                accountInfo,
+            } = req.body;
 
-        addressInfo.post_code = addressInfo.post_code || addressInfo.postCode;
-        delete addressInfo.postCode;
+            addressInfo.post_code =
+                addressInfo.post_code || addressInfo.postCode;
+            delete addressInfo.postCode;
 
-        (addressInfo.building_number =
-            addressInfo.building_number || addressInfo.buildingNumber),
-            delete addressInfo.buildingNumber;
+            (addressInfo.building_number =
+                addressInfo.building_number || addressInfo.buildingNumber),
+                delete addressInfo.buildingNumber;
 
-        (addressInfo.flat_number =
-            addressInfo.flat_number || addressInfo.flatNumber),
-            delete addressInfo.flatNumber;
+            (addressInfo.flat_number =
+                addressInfo.flat_number || addressInfo.flatNumber),
+                delete addressInfo.flatNumber;
 
-        workerInfo.phonenumber =
-            workerInfo.phonenumber || workerInfo.phoneNumber;
-        delete workerInfo.phoneNumber;
+            workerInfo.phonenumber =
+                workerInfo.phonenumber || workerInfo.phoneNumber;
+            delete workerInfo.phoneNumber;
 
-        if (!(accountInfo && accountInfo.type)) {
-            res.status(400).send('AccountInfo or its values cannot be Null!');
-            return;
-        }
-        if (
-            !(
-                workerInfo &&
-                workerInfo.firstname &&
-                workerInfo.lastname &&
-                workerInfo.phonenumber
-            )
-        ) {
-            res.status(400).send('WorkerInfo or its values cannot be Null!');
-            return;
-        }
-
-        if (
-            !(
-                addressInfo &&
-                addressInfo.street &&
-                addressInfo.building_number &&
-                addressInfo.city &&
-                addressInfo.post_code &&
-                addressInfo.country
-            )
-        ) {
-            res.status(400).send('AddressInfo or its values cannot be Null!');
-            return;
-        }
-        // password length verfication
-        const passwordIsStrong = await isPasswordStrongEnough(worker_password);
-        if (!passwordIsStrong) {
-            res.status(400).send(
-                'Password is  too weak. At least one \nlowercase letter,\n uppercase letter,\n digit.\n In length: 8.'
-            );
-            return;
-        }
-
-        // username validation
-        const validationResponse = await isUsernameValid(
-            req.sequelizers.admins,
-            username
-        );
-        if (!validationResponse.validationSuccess) {
-            res.status(400).send(validationResponse.message);
-            return;
-        }
-
-        // address population
-        const userAddress = await populateAddressToDatabase(
-            req.sequelizers.admins,
-            addressInfo,
-            t
-        );
-
-        // creating user with unique username only
-        const [
-            dbUser,
-            wasUserCreated,
-        ] = await req.sequelizers.admins.models.workers.findOrCreate({
-            where: { username },
-            defaults: {
-                ...workerInfo,
-                worker_password,
-                address_id: userAddress.address_id,
-            },
-            transaction: t,
-        });
-
-        if (!wasUserCreated) {
-            res.status(418).send('User with given username already exists');
-            t.rollback();
-        } else {
-            try {
-                const response = await createAccountType(
-                    req.sequelizers.admins,
-                    accountInfo,
-                    dbUser.dataValues,
-                    t
-                );
-
-                if (response) {
-                    res.status(200).json(response);
-                    await t.commit();
-                    return;
-                }
+            if (!(accountInfo && accountInfo.type)) {
                 res.status(400).send(
-                    'Wrongly assigned account type or object keys. Something might have been mispelled.'
+                    'AccountInfo or its values cannot be Null!'
                 );
-                await t.rollback();
-            } catch (error) {
-                console.log('[ERROR]:', error.message);
-                res.status(500).send(error.message);
+                return;
             }
-        }
-    });
+            if (
+                !(
+                    workerInfo &&
+                    workerInfo.firstname &&
+                    workerInfo.lastname &&
+                    workerInfo.phonenumber
+                )
+            ) {
+                res.status(400).send(
+                    'WorkerInfo or its values cannot be Null!'
+                );
+                return;
+            }
+
+            if (
+                !(
+                    addressInfo &&
+                    addressInfo.street &&
+                    addressInfo.building_number &&
+                    addressInfo.city &&
+                    addressInfo.post_code &&
+                    addressInfo.country
+                )
+            ) {
+                res.status(400).send(
+                    'AddressInfo or its values cannot be Null!'
+                );
+                return;
+            }
+            // password length verfication
+            const passwordIsStrong = await isPasswordStrongEnough(
+                worker_password
+            );
+            if (!passwordIsStrong) {
+                res.status(400).send(
+                    'Password is  too weak. At least one \nlowercase letter,\n uppercase letter,\n digit.\n In length: 8.'
+                );
+                return;
+            }
+
+            // username validation
+            const validationResponse = await isUsernameValid(
+                req.sequelizers.admins,
+                username
+            );
+            if (!validationResponse.validationSuccess) {
+                res.status(400).send(validationResponse.message);
+                return;
+            }
+
+            if (!addressInfo.flat_number || addressInfo.flat_number === '') {
+                delete addressInfo.flat_number;
+            }
+
+            // address population
+            const userAddress = await populateAddressToDatabase(
+                req.sequelizers.admins,
+                addressInfo,
+                t
+            );
+
+            // creating user with unique username only
+            const [
+                dbUser,
+                wasUserCreated,
+            ] = await req.sequelizers.admins.models.workers.findOrCreate({
+                where: { username },
+                defaults: {
+                    ...workerInfo,
+                    worker_password,
+                    address_id: userAddress.address_id,
+                },
+                transaction: t,
+            });
+
+            if (!wasUserCreated) {
+                res.status(418).send('User with given username already exists');
+                t.rollback();
+            } else {
+                try {
+                    const response = await createAccountType(
+                        req.sequelizers.admins,
+                        accountInfo,
+                        dbUser.dataValues,
+                        t
+                    );
+
+                    if (response) {
+                        res.status(200).json(response);
+                        await t.commit();
+                        return;
+                    }
+                    res.status(400).send(
+                        'Wrongly assigned account type or object keys. Something might have been mispelled.'
+                    );
+                    await t.rollback();
+                } catch (error) {
+                    console.log('[ERROR]:', error.message);
+                    res.status(500).send(error.message);
+                }
+            }
+        })
+        .catch(err => {
+            console.log('[ERROR]:', err.message);
+            res.send(400);
+        });
 };
 
 module.exports.deleteUserProfile = async function(req, res) {
@@ -243,6 +262,17 @@ module.exports.deleteUserProfile = async function(req, res) {
         ).length;
 
         try {
+            // prettier-ignore
+            const deletedAdminsAccounts = await req.sequelizers.admins.models.administrators.destroy({where: {worker_id: userProfileToDelete.worker_id}, transaction: t});
+            // prettier-ignore
+            const deletedVetVisits = await req.sequelizers.admins.models.vet_visits.destroy({where: {vet_id: userProfileToDelete.vet.dataValues.vet_id}, transaction: t});
+            // prettier-ignore
+            const deletedVetsAccounts = await req.sequelizers.admins.models.vets.destroy({where: {worker_id: userProfileToDelete.worker_id}, transaction: t});
+            // prettier-ignore
+            const deletedCaretakersAccounts = await req.sequelizers.admins.models.caretakers.destroy({where: {worker_id: userProfileToDelete.worker_id}, transaction: t});
+            // prettier-ignore
+            let deletedWorkersAccounts = await userProfileToDelete.destroy({transaction:t});
+
             if (countAn === 0 && countWr === 1) {
                 const response = await req.sequelizers.admins.models.addresses.destroy(
                     {
@@ -256,17 +286,6 @@ module.exports.deleteUserProfile = async function(req, res) {
 
                 console.log('response at destroy', response);
             }
-
-            // prettier-ignore
-            const deletedAdminsAccounts = await req.sequelizers.admins.models.administrators.destroy({where: {worker_id: userProfileToDelete.worker_id}, transaction: t});
-            // prettier-ignore
-            const deletedVetVisits = await req.sequelizers.admins.models.vet_visits.destroy({where: {vet_id: userProfileToDelete.vet.dataValues.vet_id}, transaction: t});
-            // prettier-ignore
-            const deletedVetsAccounts = await req.sequelizers.admins.models.vets.destroy({where: {worker_id: userProfileToDelete.worker_id}, transaction: t});
-            // prettier-ignore
-            const deletedCaretakersAccounts = await req.sequelizers.admins.models.caretakers.destroy({where: {worker_id: userProfileToDelete.worker_id}, transaction: t});
-            // prettier-ignore
-            let deletedWorkersAccounts = await userProfileToDelete.destroy({transaction:t});
 
             typeof deletedWorkersAccounts === 'object'
                 ? (deletedWorkersAccounts = 1)
