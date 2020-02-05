@@ -6,10 +6,8 @@ import NavButton from './NavButton';
 import Store from '../../Store';
 
 class HomepageContent extends React.Component {
-    state = {
-        
-    }
-    
+    state = {};
+
     static contextType = Store;
 
     render() {
@@ -24,18 +22,38 @@ class HomepageContent extends React.Component {
                     </GridColumn>
                     <GridColumn>
                         <Segment>
-                            <NavButton icon="paw" color ="green" description = "Animals" link="animals"/>
+                            <NavButton
+                                icon="paw"
+                                color="green"
+                                description="Animals"
+                                link="/animals"
+                            />
                         </Segment>
                         <Segment>
-                            <NavButton icon="doctor" color ="grey" description = "Veterinary Visits"  link="vets"/>
+                            <NavButton
+                                icon="doctor"
+                                color="grey"
+                                description="Veterinary Visits"
+                                link="/vets"
+                            />
                         </Segment>
                     </GridColumn>
                     <GridColumn>
                         <Segment>
-                            <NavButton icon="users" color ="blue" description = "Zoo workers"  link="workers"/>
+                            <NavButton
+                                icon="users"
+                                color="blue"
+                                description="Zoo workers"
+                                link="/workers"
+                            />
                         </Segment>
                         <Segment>
-                            <NavButton icon="chess board" color ="brown" description = "Enclosures"  link="enclosures"/>
+                            <NavButton
+                                icon="chess board"
+                                color="brown"
+                                description="Enclosures"
+                                link="/enclosures"
+                            />
                         </Segment>
                     </GridColumn>
                 </Grid.Row>

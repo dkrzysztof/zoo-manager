@@ -1,11 +1,18 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import { Menu } from 'semantic-ui-react';
-
+import Store from '../../Store';
 
 const AppBar = () => {
+    const { isLogged, changeStore, me } = useContext(Store);
+    const handleLogout = () => {
+        changeStore('isLogged', false);
+        changeStore('me', null);
+        window.location.reload();
+    };
+
     return (
-        <Menu size="massive" fluid widths={8}>
+        <Menu size="massive" fluid widths={9}>
             <Menu.Item />
             <br></br>
             <Menu.Item
@@ -63,6 +70,15 @@ const AppBar = () => {
                 activeClassName="active"
                 exact
             />
+            <br></br>
+            <Menu.Item
+                color="red"
+                as={Link}
+                name="Log out"
+                to="/"
+                onClick={handleLogout}
+            />
+
             <br></br>
             <Menu.Item />
             <br></br>
