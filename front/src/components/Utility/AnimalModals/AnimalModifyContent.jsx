@@ -48,7 +48,7 @@ class AnimalModifyContent extends React.Component {
             headers: setHeaders(),
         }).then(
             res => {
-                console.log(res.status);
+                console.log(res);
             },
             err => {
                 console.log(err);

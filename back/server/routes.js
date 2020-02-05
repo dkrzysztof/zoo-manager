@@ -833,10 +833,11 @@ module.exports.deleteAnimalProfile = async function(req, res) {
             const profileDeleted = await animalProfile.destroy({
                 transaction: t,
             });
-
+            t.commit();
             res.status(200).json({ deltedVisits, profileDeleted });
         } catch (error) {
             console.log('[ERROR]:', error.message);
+            t.rollback();
             res.status(500).send(error.message);
         }
     });
