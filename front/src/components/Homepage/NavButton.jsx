@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Icon, Header } from 'semantic-ui-react';
-import { Link, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 class NavButton extends React.Component {
     state = {};

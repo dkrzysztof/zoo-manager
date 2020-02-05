@@ -1,6 +1,5 @@
 import React from 'react';
 import { Grid, Segment, GridColumn } from 'semantic-ui-react';
-import { Redirect } from 'react-router-dom';
 import Store from '../../Store';
 
 class GuestsContent extends React.Component {

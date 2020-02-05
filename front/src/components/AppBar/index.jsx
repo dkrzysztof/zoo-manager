@@ -4,7 +4,7 @@ import { Menu } from 'semantic-ui-react';
 import Store from '../../Store';
 
 const AppBar = () => {
-    const { isLogged, changeStore, me } = useContext(Store);
+    const { changeStore} = useContext(Store);
     const handleLogout = () => {
         changeStore('isLogged', false);
         changeStore('me', null);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form, Grid, Header, Segment, Container, Image } from 'semantic-ui-react';
+import { Button, Form, Grid, Segment, Container, Image } from 'semantic-ui-react';
 import { Redirect } from 'react-router-dom';
 
 import Store from '../../Store';
