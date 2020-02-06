@@ -49,7 +49,12 @@ class EnclosureModifyContent extends React.Component {
     };
 
     componentDidMount() {
-        this.setState({ id: this.context.selectionID });
+        this.setState({
+            id: this.context.selectionID,
+            name: this.context.name,
+            place_condition: this.context.place_condition,
+            capacity: this.context.capacity,
+        });
     }
 
     componentDidUpdate() {
@@ -76,6 +81,7 @@ class EnclosureModifyContent extends React.Component {
                         label="Name"
                         name="name"
                         onChange={this.handleInputChange}
+                        value={this.state.name}
                     />
                     <Form.Select
                         control={Select}
@@ -84,6 +90,7 @@ class EnclosureModifyContent extends React.Component {
                         label="Place condition"
                         name="place_condition"
                         onChange={this.handleInputChange}
+                        value={this.state.place_condition}
                     />
                     <Form.Field
                         type="number"
@@ -92,10 +99,11 @@ class EnclosureModifyContent extends React.Component {
                         label="Capacity"
                         name="capacity"
                         onChange={this.handleInputChange}
+                        value={this.state.capacity}
                     />
                 </Form>
                 <Button type="submit" onClick={this.onButtonClick}>
-                    Add
+                    Save
                 </Button>
             </Container>
         );

@@ -761,13 +761,28 @@ module.exports.updateAnimalProfile = async function(req, res) {
 
         if (animalProfile) {
             for (let key in animalProfile.dataValues) {
-                if (key != 'animal_id' && key != 'health') {
+                if (
+                    key != 'animal_id' &&
+                    key != 'health' &&
+                    key != 'birth_date'
+                ) {
                     animalProfile[key] =
                         newProfileInfo[key] || animalProfile[key];
                 }
             }
-            animalProfile.address_id = 76475;
-            const response = await animalProfile.update();
+            if (
+                newProfileInfo.birth_date.day &&
+                newProfileInfo.birth_date.month &&
+                newProfileInfo.birth_date.year
+            ) {
+                animalProfile.birth_date = new Date(
+                    newProfileInfo.birth_date.year,
+                    newProfileInfo.birth_date.month,
+                    newProfileInfo.birth_date.day
+                ).toString();
+            }
+
+            const response = await animalProfile.save();
 
             res.status(200).json(response);
         } else {
@@ -833,6 +848,7 @@ module.exports.deleteAnimalProfile = async function(req, res) {
             const profileDeleted = await animalProfile.destroy({
                 transaction: t,
             });
+
             t.commit();
             res.status(200).json({ deltedVisits, profileDeleted });
         } catch (error) {

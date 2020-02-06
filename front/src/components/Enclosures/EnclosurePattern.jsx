@@ -16,6 +16,16 @@ class EnclosurePattern extends React.Component {
             'selectionID',
             this.props.enclosure.place_id
         );
+        await this.context.changeStore('name', this.props.enclosure.name);
+        await this.context.changeStore(
+            'place_condition',
+            this.props.enclosure.place_condition
+        );
+        await this.context.changeStore(
+            'capacity',
+            this.props.enclosure.capacity
+        );
+
         await this.context.changeStore('selectionType', 'enclosure');
     };
 
